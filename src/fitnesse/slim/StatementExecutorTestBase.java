@@ -1,11 +1,8 @@
 package fitnesse.slim;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 // Extracted Test class to be implemented by all Java based Slim ports
 // The tests for PhpSlim and JsSlim implement this class
@@ -59,11 +56,11 @@ public abstract class StatementExecutorTestBase {
   }
 
   public static abstract class MyAnnotatedSystemUnderTestFixture implements Echo,
-      SystemUnderTestFixture {
+    SystemUnderTestFixture {
   }
 
   public static abstract class FixtureWithNamedSystemUnderTestBase implements Echo,
-      SystemUnderTestFixture {
+    SystemUnderTestFixture {
   }
 
   public static abstract class SimpleFixture implements Echo {
@@ -107,7 +104,7 @@ public abstract class StatementExecutorTestBase {
     createAnnotatedFixture();
     String result = (String) statementExecutor.call(INSTANCE_NAME, "noSuchMethod");
     String expectedErrorMessage = String.format(MESSAGE_NO_METHOD_IN_CLASS, "noSuchMethod", 0,
-        annotatedFixtureName());
+      annotatedFixtureName());
     assertTrue(result.contains(expectedErrorMessage));
   }
 
@@ -169,6 +166,19 @@ public abstract class StatementExecutorTestBase {
     assertTrue(library.deleteCalled());
   }
 
+  @Test
+  public void whenCstrThrowsException_andNoVerifyOnly_shouldShowThrownException() {
+    Object created = statementExecutor.create(INSTANCE_NAME, cstrThrowsExceptionFixture(), new Object[]{});
+    assertTrue("found '" + created + "'", created.toString().startsWith("__EXCEPTION__"));
+  }
+
+  @Test
+  public void whenCstrThrowsException_andVerifyOnly_shouldNotShowThrownException() {
+    StatementExecutor.setVerifyOnly(true);
+    Object created = statementExecutor.create(INSTANCE_NAME, cstrThrowsExceptionFixture(), new Object[]{});
+    assertTrue("found '" + created + "'", created.toString().startsWith("OK"));
+  }
+
   protected MyAnnotatedSystemUnderTestFixture createAnnotatedFixture() {
     createFixtureInstance(annotatedFixtureName());
     return (MyAnnotatedSystemUnderTestFixture) getVerifiedInstance();
@@ -192,7 +202,7 @@ public abstract class StatementExecutorTestBase {
 
   protected EchoSupport createEchoLibrary() {
     String instanceName = "library" + library++;
-    statementExecutor.create(instanceName, echoLibraryName(), new Object[] {});
+    statementExecutor.create(instanceName, echoLibraryName(), new Object[]{});
     return (EchoSupport) statementExecutor.getInstance(instanceName);
   }
 
@@ -200,14 +210,14 @@ public abstract class StatementExecutorTestBase {
 
   protected FileSupport createFileSupportLibrary() {
     String instanceName = "library" + library++;
-    statementExecutor.create(instanceName, fileSupportName(), new Object[] {});
+    statementExecutor.create(instanceName, fileSupportName(), new Object[]{});
     return (FileSupport) statementExecutor.getInstance(instanceName);
   }
 
   protected abstract String fileSupportName();
 
   protected void createFixtureInstance(String fixtureClass) {
-    Object created = statementExecutor.create(INSTANCE_NAME, fixtureClass, new Object[] {});
+    Object created = statementExecutor.create(INSTANCE_NAME, fixtureClass, new Object[]{});
     assertEquals("OK", created);
   }
 
@@ -221,4 +231,7 @@ public abstract class StatementExecutorTestBase {
     Object result = statementExecutor.call(INSTANCE_NAME, "speak");
     assertEquals(voidMessage(), result);
   }
+
+  protected abstract String cstrThrowsExceptionFixture();
+
 }

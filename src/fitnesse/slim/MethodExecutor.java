@@ -5,8 +5,14 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 public abstract class MethodExecutor {
+  static boolean verifyOnly = false;
+
   public MethodExecutor() {
     super();
+  }
+
+  public static void setVerifyOnly(boolean verifyOnly) {
+    MethodExecutor.verifyOnly = verifyOnly;
   }
 
   public abstract MethodExecutionResult execute(String instanceName, String methodName, Object[] args) throws Throwable;
@@ -50,6 +56,9 @@ public abstract class MethodExecutor {
   protected MethodExecutionResult findAndInvoke(String methodName, Object[] args, Object instance) throws Throwable {
     Method method = findMatchingMethod(methodName, instance.getClass(), args.length);
     if (method != null) {
+      if(verifyOnly) {
+        return MethodExecutionResult.HAS_METHOD_IN_LIBRARIES;
+      }
       return this.invokeMethod(instance, method, args);
     }
     return MethodExecutionResult.noMethod(methodName, instance.getClass(), args.length);

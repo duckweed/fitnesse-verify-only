@@ -1,21 +1,19 @@
 package fitnesse.slim;
 
-import fitnesse.slim.StatementExecutorInterface;
-
 public abstract class SlimFactory {
 
   public abstract NameTranslator getMethodNameTranslator();
 
-  public SlimServer getSlimServer(boolean verbose) {
-    return new SlimServer(verbose, this);
+  public SlimServer getSlimServer(boolean verbose, boolean verifyOnly) {
+    return new SlimServer(verbose, verifyOnly, this);
   }
 
-  public ListExecutor getListExecutor(boolean verbose) {
-    return new ListExecutor(verbose, this);
+  public ListExecutor getListExecutor(boolean verbose, boolean verifyOnly) {
+    return new ListExecutor(verbose, verifyOnly, this);
   }
 
   public abstract StatementExecutorInterface getStatementExecutor();
-  
+
   public void stop() {
   }
 

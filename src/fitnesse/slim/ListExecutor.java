@@ -13,20 +13,18 @@ import java.util.List;
 public class ListExecutor {
   private StatementExecutorInterface executor;
   private NameTranslator methodNameTranslator;
-  private boolean verbose;
+  boolean verbose;
+  boolean verifyOnly;
 
   public ListExecutor(SlimFactory slimFactory) {
-    this(false, slimFactory);
+    this(false, false, slimFactory);
   }
 
-  protected ListExecutor(boolean verbose, SlimFactory slimFactory) {
+  protected ListExecutor(boolean verbose, boolean verifyOnly, SlimFactory slimFactory) {
     this.verbose = verbose;
+    this.verifyOnly = verifyOnly;
     this.executor = slimFactory.getStatementExecutor();
     this.methodNameTranslator = slimFactory.getMethodNameTranslator();
-  }
-
-  protected void setVerbose() {
-    verbose = true;
   }
 
   private class Executive {

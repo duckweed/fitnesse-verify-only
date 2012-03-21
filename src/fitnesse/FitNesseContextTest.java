@@ -8,6 +8,8 @@ import org.junit.Test;
 public class FitNesseContextTest {
 //  public static ClassCreatedFromRuby rubyResult;
 
+  FitNesseContext context = new FitNesseContext();
+
   @Test
   public void shouldReportPortOfMinusOneIfNotInitialized() {
     FitNesseContext.globalContext = null;
@@ -16,11 +18,24 @@ public class FitNesseContextTest {
 
   @Test
   public void shouldHavePortSetAfterFitNesseObjectConstructed() throws Exception {
-    FitNesseContext context = new FitNesseContext();
     context.port = 9988;
     new FitNesse(context, false);
     assertEquals(9988, FitNesseContext.getPort());
   }
+
+  @Test
+  public void testHasVerifyOnlyFlag() throws Exception{
+    context.verifyOnly = true;
+    new FitNesse(context, false);
+    assertEquals(true, FitNesseContext.getVerifyOnly());
+  }
+
+  @Test
+  public void testVerifyOnlyOffByDefault() throws Exception{
+    new FitNesse(context, false);
+    assertEquals("should be off by default", false, FitNesseContext.getVerifyOnly());
+  }
+
 
 //  @Test
 //  public void jrubyCanBeCalled() throws Exception {

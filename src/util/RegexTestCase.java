@@ -31,8 +31,12 @@ public abstract class RegexTestCase extends TestCase {
   }
 
   public static void assertSubString(String substring, String string) {
+    assertSubString("", substring, string);
+  }
+
+  public static void assertSubString(String msg, String substring, String string) {
     if (string.indexOf(substring) == -1)
-      fail("substring '" + substring + "' not found in string '" + string + "'.");
+      fail(msg + "substring '" + substring + "' not found in string '" + string + "'.");
   }
 
   public static void assertNotSubString(String subString, String string) {

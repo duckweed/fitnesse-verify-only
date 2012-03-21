@@ -24,8 +24,7 @@ public class MethodExecutionResult {
 
     @Override
     public Object returnValue() {
-      throw new SlimError(String.format(MESSAGE_NO_METHOD_IN_CLASS, methodName, numberOfArgs,
-          clazz.getName()));
+      throw new SlimError(String.format(MESSAGE_NO_METHOD_IN_CLASS, methodName, numberOfArgs, clazz.getName()));
     }
 
   }
@@ -56,6 +55,24 @@ public class MethodExecutionResult {
     }
   };
 
+  public static final MethodExecutionResult HAS_METHOD_IN_LIBRARIES = new MethodExecutionResult("", String.class) {
+
+    @Override
+    public Object returnValue() {
+      return "verified:";
+    }
+
+    @Override
+    public boolean hasMethod() {
+      return false;
+    }
+
+    @Override
+    public boolean hasResult() {
+      return true;
+    }
+  };
+
   private final Object value;
   private final Class<?> type;
 
@@ -83,7 +100,7 @@ public class MethodExecutionResult {
       return toString();
     }
   }
-  
+
   public String toString() {
     Converter converter = ConverterSupport.getConverter(type);
     if (converter != null)

@@ -12,6 +12,7 @@ public class SlimService extends SocketService {
   public static SlimService instance = null;
   public static boolean verbose;
   public static int port;
+  public static boolean verifyOnly = true;
 
   public static void main(String[] args) throws IOException {
     if (parseCommandLine(args)) {
@@ -26,13 +27,16 @@ public class SlimService extends SocketService {
   }
 
   protected static void startWithFactory(String[] args, SlimFactory slimFactory) throws IOException {
-    new SlimService(port, slimFactory.getSlimServer(verbose));
+    new SlimService(port, slimFactory.getSlimServer(verbose, verifyOnly));
   }
 
   protected static boolean parseCommandLine(String[] args) {
-    CommandLine commandLine = new CommandLine("[-v] port");
+    CommandLine commandLine = new CommandLine("[-y] [-v] port");
     if (commandLine.parse(args)) {
+      verifyOnly = commandLine.hasOption("y");
       verbose = commandLine.hasOption("v");
+      StatementExecutor.setVerifyOnly(verifyOnly);
+      MethodExecutor.setVerifyOnly(verifyOnly);
       String portString = commandLine.getArgument("port");
       port = Integer.parseInt(portString);
       return true;

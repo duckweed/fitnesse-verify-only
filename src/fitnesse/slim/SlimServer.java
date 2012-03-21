@@ -18,10 +18,12 @@ public class SlimServer implements SocketServer {
   private BufferedWriter writer;
   private ListExecutor executor;
   private boolean verbose;
+  public boolean verifyOnly;
   private SlimFactory slimFactory;
 
-  public SlimServer(boolean verbose, SlimFactory slimFactory) {
+  public SlimServer(boolean verbose, boolean verifyOnly, SlimFactory slimFactory) {
     this.verbose = verbose;
+    this.verifyOnly = verifyOnly;
     this.slimFactory = slimFactory;
   }
 
@@ -44,7 +46,7 @@ public class SlimServer implements SocketServer {
   }
 
   private void initialize(Socket s) throws IOException {
-    executor = slimFactory.getListExecutor(verbose);
+    executor = slimFactory.getListExecutor(verbose, verifyOnly);
     reader = new StreamReader(s.getInputStream());
     writer = new BufferedWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"));
     writer.write(String.format("Slim -- V%s\n", SlimVersion.VERSION));

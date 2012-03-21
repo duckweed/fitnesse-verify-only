@@ -33,6 +33,7 @@ public class FitNesseContext {
   public String testResultsDirectoryName = "testResults";
   public boolean shouldCollectHistory = false;
   public boolean doNotChunk;
+  public boolean verifyOnly;
 
   public FitNesseContext() {
     this(null);
@@ -68,4 +69,11 @@ public class FitNesseContext {
     rootPagePath = rootPath + "/" + rootDirectoryName;
   }
 
+  public static boolean getVerifyOnly() {
+    return globalContext != null ? globalContext.verifyOnly : false;
+  }
+
+  public static void setVerifyOnly(boolean _verifyOnly) {
+    globalContext.verifyOnly = _verifyOnly;
+  }
 }

@@ -1,0 +1,26 @@
+!define TEST_SYSTEM {slim}
+
+|import                       |
+|fitnesse.slim.test.verifyOnly|
+|fitnesse.slim.test           |
+
+!1 Decision Table
+
+!|ConstructorThrowsExceptionFixture     |
+|i|getI?|day |getDay?|day  |getDay?|day |
+|1|1    |true|false  |false|true   |true|
+
+!|ConstructorDoesntThrowExceptionFixture|
+|i                |getI?                |
+|1                |1                    |
+
+!1 script
+
+
+!|script|ConstructorThrowsExceptionFixture|
+|setI   |2                                |
+|show   |getI                             |
+|check  |getI;             |2             |
+|ensure |getDay;                          |
+|reject |getDay;                          |
+

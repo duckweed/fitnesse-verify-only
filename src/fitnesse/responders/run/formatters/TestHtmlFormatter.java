@@ -81,7 +81,7 @@ public abstract class TestHtmlFormatter extends BaseFormatter {
   public void testComplete(TestPage testPage, TestSummary testSummary, TimeMeasurement timeMeasurement) throws IOException {
     super.testComplete(testPage, testSummary, timeMeasurement);
     latestTestTime = timeMeasurement;
-    
+
     processTestResults(getRelativeName(testPage), testSummary);
   }
 
@@ -153,7 +153,7 @@ public abstract class TestHtmlFormatter extends BaseFormatter {
     writeData(testSummary());
     writeData("<br/><div class=\"footer\">\n");
     writeData(getPage().getData().getFooterPageHtml());
-    writeData("</div>\n");    
+    writeData("</div>\n");
     if (htmlPage != null)
       writeData(htmlPage.postDivision);
   }
@@ -166,16 +166,26 @@ public abstract class TestHtmlFormatter extends BaseFormatter {
   }
 
   protected String cssClassFor(TestSummary testSummary) {
-    if (testSummary.getWrong() > 0 || wasInterupted)
+    boolean anyWrong = testSummary.getWrong() > 0;
+    boolean anyExceptions = testSummary.getExceptions() > 0;
+    boolean noTests = testSummary.getRight() + testSummary.getIgnores() == 0;
+    boolean anyVerified = testSummary.getVerified() > 0;
+
+    if (anyWrong || wasInterupted) {
       return "fail";
-    else if (testSummary.getExceptions() > 0
-      || testSummary.getRight() + testSummary.getIgnores() == 0)
+    }
+    if (anyExceptions) {
       return "error";
-    else if (testSummary.getIgnores() > 0 && testSummary.getRight() == 0)
-      return "ignore";
-    else
-      return "pass";
+    }
+    if (noTests && ! anyVerified) {
+      return "error";
+    }
+    if (anyVerified) {
+      return "verified";
+    }
+    return "pass";
   }
+
 
   public String executionStatus(CompositeExecutionLog logs) {
     return logs.executionStatusHtml();

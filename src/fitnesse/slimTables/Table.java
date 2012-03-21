@@ -27,13 +27,15 @@ public interface Table {
 
   String pass(String s);
 
+  String verified(String s);
+
   String fail(String s);
 
   String ignore(String s);
 
   String getUnescapedCellContents(int col, int row);
 
-  String getCellResult(int col,int row);
+  String getCellResult(int col, int row);
 
   void appendCellToRow(int row, Table table);
 

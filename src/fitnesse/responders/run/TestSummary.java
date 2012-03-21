@@ -2,11 +2,19 @@
 // Released under the terms of the CPL Common Public License version 1.0.
 package fitnesse.responders.run;
 
+import fitnesse.FitNesseContext;
+
 public class TestSummary {
   public int right = 0;
   public int wrong = 0;
   public int ignores = 0;
   public int exceptions = 0;
+  public int verified = 0;
+
+  public TestSummary(int right, int wrong, int ignores, int exceptions, int verified) {
+    this(right, wrong, ignores, exceptions);
+    this.verified = verified;
+  }
 
   public TestSummary(int right, int wrong, int ignores, int exceptions) {
     this.right = right;
@@ -26,8 +34,11 @@ public class TestSummary {
   }
 
   public String toString() {
-    return getRight() + " right, " + getWrong() + " wrong, " + getIgnores()
-    + " ignored, " + getExceptions() + " exceptions";
+    String str = getRight() + " right, " + getWrong() + " wrong, " + getIgnores() + " ignored, " + getExceptions() + " exceptions";
+    if (FitNesseContext.getVerifyOnly()) {
+      str += ", " + getVerified() + " verified";
+    }
+    return str;
   }
 
   public boolean equals(Object o) {
@@ -35,13 +46,13 @@ public class TestSummary {
       return false;
     TestSummary other = (TestSummary) o;
     return getRight() == other.getRight() && getWrong() == other.getWrong()
-    && getIgnores() == other.getIgnores()
-    && getExceptions() == other.getExceptions();
+      && getIgnores() == other.getIgnores()
+      && getExceptions() == other.getExceptions();
   }
 
   public int hashCode() {
     assert false : "hashCode not designed";
-  return 42;
+    return 42;
   }
 
   public void tallyPageCounts(TestSummary counts) {
@@ -83,5 +94,9 @@ public class TestSummary {
 
   public int getExceptions() {
     return exceptions;
+  }
+
+  public int getVerified() {
+    return verified;
   }
 }

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public class TestSlim implements TestSlimInterface {
+  public static final String EXPECTED_STRING = "exp.string";
   private boolean niladWasCalled = false;
   private String stringArg;
   private int intArg;
@@ -68,7 +69,7 @@ public class TestSlim implements TestSlimInterface {
   }
 
   public String returnString() {
-    return "string";
+    return EXPECTED_STRING;
   }
 
   public int returnInt() {

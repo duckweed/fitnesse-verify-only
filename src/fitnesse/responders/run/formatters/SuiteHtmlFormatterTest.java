@@ -2,6 +2,7 @@
 // Released under the terms of the CPL Common Public License version 1.0.
 package fitnesse.responders.run.formatters;
 
+import fitnesse.VelocityFactory;
 import fitnesse.responders.run.TestPage;
 import util.RegexTestCase;
 import util.TimeMeasurement;
@@ -19,6 +20,8 @@ public class SuiteHtmlFormatterTest extends RegexTestCase {
   public void setUp() throws Exception {
     FitNesseContext context = new FitNesseContext();
     htmlPage = new HtmlPageFactory().newPage();
+
+    VelocityFactory.makeVelocityFactory(context);
     formatter = new SuiteHtmlFormatter(context) {
       @Override
       protected HtmlPage buildHtml(String pageType) {
@@ -49,15 +52,23 @@ public class SuiteHtmlFormatterTest extends RegexTestCase {
     formatter.processTestResults("RelativePageName", new TestSummary(1, 0, 0, 0));
 
     assertSubString("<div class=\\\"alternating_row_2\\\">", pageBuffer.toString());
-    assertSubString("<span class=\\\"test_summary_results pass\\\">1 right, 0 wrong, 0 ignored, 0 exceptions</span>", pageBuffer.toString());
+    assertSubString("<span class=\\\"test_summary_results pass\\\">1 right, 0 wrong, 0 ignored, 0 exceptions", pageBuffer.toString());
     assertSubString("<a href=\\\"#RelativePageName0\\\" class=\\\"test_summary_link\\\">RelativePageName</a>", pageBuffer.toString());
 
     pageBuffer.setLength(0);
     formatter.processTestResults("AnotherPageName", new TestSummary(0, 1, 0, 0));
 
     assertSubString("<div class=\\\"alternating_row_1\\\">", pageBuffer.toString());
-    assertSubString("<span class=\\\"test_summary_results fail\\\">0 right, 1 wrong, 0 ignored, 0 exceptions</span>", pageBuffer.toString());
+    assertSubString("<span class=\\\"test_summary_results fail\\\">0 right, 1 wrong, 0 ignored, 0 exceptions", pageBuffer.toString());
     assertSubString("<a href=\\\"#AnotherPageName0\\\" class=\\\"test_summary_link\\\">AnotherPageName</a>", pageBuffer.toString());
+  }
+
+  public void testCountsHtmlWithZeroPasses() throws Exception {
+    formatter.processTestResults("RelativePageName", new TestSummary(0, 0, 0, 0));
+
+    assertSubString("<div class=\\\"alternating_row_2\\\">", pageBuffer.toString());
+    assertSubString("<span class=\\\"test_summary_results error\\\">0 right, 0 wrong, 0 ignored, 0 exceptions</span>", pageBuffer.toString());
+    assertSubString("<a href=\\\"#RelativePageName0\\\" class=\\\"test_summary_link\\\">RelativePageName</a>", pageBuffer.toString());
   }
 
   public void testResultsHtml() throws Exception {
@@ -123,7 +134,7 @@ public class SuiteHtmlFormatterTest extends RegexTestCase {
     formatter.newTestStarted(firstPage, timeMeasurement.start());
     formatter.testComplete(firstPage, new TestSummary(1, 2, 3, 4), timeMeasurement.stop());
     formatter.allTestingComplete(totalTimeMeasurement.stop());
-    assertSubString("<strong>Assertions:</strong> 1 right, 2 wrong, 3 ignored, 4 exceptions (0.900 seconds)", pageBuffer.toString());
+    assertSubString("<strong>Assertions:</strong> 1 right, 2 wrong, 3 ignored, 4 exceptions", pageBuffer.toString());
   }
 
   public void testIndividualTestTimingsShouldAppearInSummary() throws Exception {

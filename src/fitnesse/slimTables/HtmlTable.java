@@ -122,6 +122,10 @@ public class HtmlTable implements Table {
     return String.format("<span class=\"pass\">%s</span>", s);
   }
 
+  public String verified(String s) {
+    return String.format("<span class=\"verified\">%s</span>", s);
+  }
+
   public String fail(String s) {
     return String.format("<span class=\"fail\">%s</span>", s);
   }

@@ -18,6 +18,9 @@ public class SystemUnderTestMethodExecutor extends MethodExecutor {
     Field field = findSystemUnderTest(instance.getClass());
     if (field != null) {
       Object systemUnderTest = field.get(instance);
+      if(verifyOnly) {
+        return MethodExecutionResult.HAS_METHOD_IN_LIBRARIES;
+      }
       return findAndInvoke(methodName, args, systemUnderTest);
     }
     return MethodExecutionResult.noMethod(methodName, instance.getClass(), args.length);

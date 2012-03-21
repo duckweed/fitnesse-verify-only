@@ -4,22 +4,18 @@
 
 package fit;
 
+import fit.exception.CouldNotParseFitFailureException;
+import fit.exception.FitFailureException;
+import fit.exception.FitMatcherException;
+import fitnesse.FitNesseContext;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-
-import fit.exception.CouldNotParseFitFailureException;
-import fit.exception.FitFailureException;
-import fit.exception.FitMatcherException;
+import java.util.*;
 
 // TODO-RcM Figure out how to make me smaller.
 public class Fixture {
@@ -187,6 +183,11 @@ public class Fixture {
     counts.right++;
   }
 
+  public void verified(Parse cell) {
+    cell.addToTag(" class=\"verified\"");
+    counts.right++;
+  }
+
   public void wrong(Parse cell) {
     cell.addToTag(" class=\"fail\"");
     counts.wrong++;
@@ -291,8 +292,11 @@ public class Fixture {
       ignore(cell);
     else if (text.equals("error"))
       handleErrorInCell(a, cell);
-    else
+    else if (text.equals("pass:") && FitNesseContext.getVerifyOnly()) {
+      verified(cell);
+    } else {
       compareCellToResult(a, cell);
+    }
   }
 
   private void compareCellToResult(TypeAdapter a, Parse cell) {

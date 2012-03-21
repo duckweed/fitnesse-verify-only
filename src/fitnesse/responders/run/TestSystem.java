@@ -2,6 +2,7 @@
 // Released under the terms of the CPL Common Public License version 1.0.
 package fitnesse.responders.run;
 
+import fitnesse.FitNesseContext;
 import fitnesse.wiki.PageData;
 import fitnesse.wiki.WikiPage;
 
@@ -13,8 +14,8 @@ import java.util.Map;
 public abstract class TestSystem implements TestSystemListener {
   public static final String DEFAULT_COMMAND_PATTERN =
     "java -cp fitnesse.jar" +
-    System.getProperties().get("path.separator") +
-    "%p %m";
+      System.getProperties().get("path.separator") +
+      "%p %m";
   public static final String DEFAULT_JAVA_DEBUG_COMMAND = "java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000 -cp %p %m";
   public static final String DEFAULT_CSHARP_DEBUG_RUNNER_FIND = "runner.exe";
   public static final String DEFAULT_CSHARP_DEBUG_RUNNER_REPLACE = "runnerw.exe";
@@ -39,6 +40,9 @@ public abstract class TestSystem implements TestSystemListener {
 
   protected String buildCommand(TestSystem.Descriptor descriptor, String classPath) {
     String commandPattern = descriptor.commandPattern;
+    if (FitNesseContext.getVerifyOnly()) {
+      commandPattern += " -y";
+    }
     String command = replace(commandPattern, "%p", classPath);
     command = replace(command, "%m", descriptor.testRunner);
     return command;
@@ -77,6 +81,7 @@ public abstract class TestSystem implements TestSystemListener {
 
     return value.substring(0, index) + replacement + value.substring(index + mark.length());
   }
+
   public void setFastTest(boolean fastTest) {
     this.fastTest = fastTest;
   }
@@ -133,14 +138,14 @@ public abstract class TestSystem implements TestSystemListener {
       return getTestRunnerNormal(pageData);
   }
 
-  
+
   private static String getTestRunnerDebug(PageData data) {
     String program = data.getVariable("REMOTE_DEBUG_RUNNER");
     if (program == null) {
       program = getTestRunnerNormal(data);
       if (program.toLowerCase().contains(DEFAULT_CSHARP_DEBUG_RUNNER_FIND))
-        program = program.toLowerCase().replace(DEFAULT_CSHARP_DEBUG_RUNNER_FIND, 
-                                                DEFAULT_CSHARP_DEBUG_RUNNER_REPLACE); 
+        program = program.toLowerCase().replace(DEFAULT_CSHARP_DEBUG_RUNNER_FIND,
+          DEFAULT_CSHARP_DEBUG_RUNNER_REPLACE);
     }
     return program;
   }

@@ -12,16 +12,17 @@ import fitnesse.authentication.OneUserAuthenticator;
 import fitnesse.authentication.PromiscuousAuthenticator;
 import fitnesse.testutil.FitNesseUtil;
 import org.junit.After;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.mockito.Mockito.*;
-import static org.junit.matchers.JUnitMatchers.*;
 import util.FileUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
+
+import static org.junit.Assert.*;
+import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.mockito.Mockito.*;
 
 public class FitNesseMainTest {
 
@@ -128,7 +129,7 @@ public class FitNesseMainTest {
 
   @Test
   public void canRunSingleCommand() throws Exception {
-    String response = runFitnesseMainWith("-o",  "-c", "/root");
+    String response = runFitnesseMainWith("-o", "-c", "/root");
     assertThat(response, containsString("Command Output"));
   }
 
@@ -137,6 +138,46 @@ public class FitNesseMainTest {
     String response = runFitnesseMainWith("-o", "-a", "user:pwd", "-c", "user:pwd:/FitNesse.ReadProtectedPage");
     assertThat(response, containsString("HTTP/1.1 200 OK"));
   }
+
+  @Test
+  public void testGetHelp() throws Exception {
+    String[] messages = arrayOfExpectedHelpLines();
+    String helpMessage = helpMessage();
+
+    assertEquals("should be the right number of lines", messages.length, helpMessage.split("\n").length);
+
+    for (String message : messages) {
+      assertTrue("help message should contain " + message, helpMessage.contains(message));
+    }
+  }
+
+  private String[] arrayOfExpectedHelpLines() {
+    String header = "Usage: java -jar fitnesse.jar [-pdrleoa]";
+    String portHeader = "-p <port number> {80}";
+
+    String dirHeader = "-d <working directory> {.}";
+    String rootHeader = "-r <page root directory> {FitNesseRoot}";
+    String loggingHeader = "-l <log directory> {no logging}";
+    String expiryHeader = "-e <days> {14} Number of days before page versions expire";
+    String omitUpdatesHeader = "-o omit updates";
+    String authHeader = "-a {user:pwd | user-file-name} enable authentication.";
+    String installOnlyHeader = "-i Install only, then quit.";
+    String commandHeader = "-c <command> execute single command.";
+    String verifyHeader = "-y verify syntax and structure of tests only.";
+
+    return new String[]{header, portHeader, dirHeader, rootHeader, loggingHeader, expiryHeader, omitUpdatesHeader, authHeader, installOnlyHeader, commandHeader, verifyHeader};
+  }
+
+  private String helpMessage() {
+    PrintStream err = System.err;
+    ByteArrayOutputStream errBytes = new ByteArrayOutputStream();
+    System.setErr(new PrintStream(errBytes));
+    FitNesseMain.printUsage();
+    System.setErr(err);
+
+    return errBytes.toString();
+  }
+
 
   private String runFitnesseMainWith(String... args) throws Exception {
     FitNesseMain.dontExitAfterSingleCommand = true;

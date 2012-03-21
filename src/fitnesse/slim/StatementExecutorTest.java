@@ -61,6 +61,12 @@ public class StatementExecutorTest extends StatementExecutorTestBase {
     }
   }
 
+  public static class CstrThrowsExceptionFixture{
+    public CstrThrowsExceptionFixture() {
+      throw new RuntimeException("");
+    }
+  }
+
   public static class SimpleFixtureJava extends SimpleFixture {
     private boolean echoCalled;
 
@@ -135,5 +141,9 @@ public class StatementExecutorTest extends StatementExecutorTestBase {
   @Override
   protected String fileSupportName() {
     return FileSupportJava.class.getName();
+  }
+  @Override
+  protected String cstrThrowsExceptionFixture() {
+    return CstrThrowsExceptionFixture.class.getName();
   }
 }

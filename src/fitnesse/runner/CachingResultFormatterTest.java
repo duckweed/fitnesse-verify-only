@@ -14,12 +14,12 @@ public class CachingResultFormatterTest extends RegexTestCase {
     formatter.acceptFinalCount(new TestSummary(1, 2, 3, 4));
 
     String content = new StreamReader(formatter.getResultStream()).read(formatter.getByteCount());
-    assertSubString("0000000060", content);
+    assertSubString("should get correct message size", "0000000060", content);
     assertSubString(result.toString(), content);
-    assertSubString("0000000001", content);
-    assertSubString("0000000002", content);
-    assertSubString("0000000003", content);
-    assertSubString("0000000004", content);
+    assertSubString("right tests - should get correct number  ", "0000000001", content);
+    assertSubString("wrong tests - should get correct number  ", "0000000002", content);
+    assertSubString("ignored tests - should get correct number", "0000000003", content);
+    assertSubString("exceptions - should get correct number   ", "0000000004", content);
   }
 
   public void testIsComposit() throws Exception {

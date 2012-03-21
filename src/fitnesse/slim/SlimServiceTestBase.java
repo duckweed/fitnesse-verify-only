@@ -166,6 +166,13 @@ public abstract class SlimServiceTestBase {
   }
 
   @Test
+  public void verifyOnlyArgument() throws Exception {
+    String args[] = { "-y", "99" };
+    assertTrue(SlimService.parseCommandLine(args));
+    assertTrue(SlimService.verifyOnly);
+  }
+
+  @Test
   public void notStopTestExceptionThrown() throws Exception {
     addImportAndMake();
     statements.add(list("id", "call", "testSlim", "throwNormal"));

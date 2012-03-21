@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class VariableStore {
   private static final Pattern SYMBOL_PATTERN = Pattern.compile("\\$([a-zA-Z]\\w*)");
-  private Map<String, MethodExecutionResult> variables = new HashMap<String, MethodExecutionResult>();
+  Map<String, MethodExecutionResult> variables = new HashMap<String, MethodExecutionResult>();
   private Matcher symbolMatcher;
 
   public void setSymbol(String name, MethodExecutionResult value) {
@@ -60,7 +60,7 @@ public class VariableStore {
         break;
       }
       symbolMatcher = SYMBOL_PATTERN.matcher(arg);
-      if (symbolMatcher.find(startingPosition)) {
+      if (symbolMatcher.find() && symbolMatcher.find(startingPosition)) {
         String symbolName = symbolMatcher.group(1);
         arg = replaceSymbolInArg(arg, symbolName);
         startingPosition = symbolMatcher.start(1);

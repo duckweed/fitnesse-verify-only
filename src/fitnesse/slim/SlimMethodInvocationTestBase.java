@@ -7,6 +7,7 @@ import static util.ListUtility.list;
 
 import java.util.Date;
 
+import fitnesse.slim.test.TestSlim;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +47,7 @@ abstract public class SlimMethodInvocationTestBase {
   @Test
   public void methodReturnsString() throws Exception {
     Object retval = caller.call("testSlim", "returnString");
-    assertEquals("string", retval);
+    assertEquals(TestSlim.EXPECTED_STRING, retval);
   }
 
   @Test

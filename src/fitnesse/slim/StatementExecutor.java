@@ -2,7 +2,9 @@
 // Released under the terms of the CPL Common Public License version 1.0.
 package fitnesse.slim;
 
-import fitnesse.slim.converters.*;
+import fitnesse.slim.converters.MapEditor;
+import org.objenesis.instantiator.ObjectInstantiator;
+import org.objenesis.strategy.StdInstantiatorStrategy;
 
 import java.beans.PropertyEditorManager;
 import java.io.PrintWriter;
@@ -29,6 +31,7 @@ public class StatementExecutor implements StatementExecutorInterface {
 
   private boolean stopRequested = false;
   private String lastActor;
+  private static boolean verifyOnly = false;
 
   public StatementExecutor() {
     PropertyEditorManager.registerEditor(Map.class, MapEditor.class);
@@ -36,8 +39,12 @@ public class StatementExecutor implements StatementExecutorInterface {
     executorChain.add(new FixtureMethodExecutor(instances));
     executorChain.add(new SystemUnderTestMethodExecutor(instances));
     executorChain.add(new LibraryMethodExecutor(libraries));
-    
+
     addSlimHelperLibraryToLibraries();
+  }
+
+  public static void setVerifyOnly(boolean verifyOnly) {
+    StatementExecutor.verifyOnly = verifyOnly;
   }
 
   private void addSlimHelperLibraryToLibraries() {
@@ -49,7 +56,7 @@ public class StatementExecutor implements StatementExecutorInterface {
   public void setVariable(String name, Object value) {
     variables.setSymbol(name, new MethodExecutionResult(value, Object.class));
   }
-  
+
   private void setVariable(String name, MethodExecutionResult value) {
     variables.setSymbol(name, value);
   }
@@ -126,7 +133,7 @@ public class StatementExecutor implements StatementExecutorInterface {
 
   private String couldNotInvokeConstructorException(String className, Object[] args) {
     return exceptionToString(new SlimError(String.format(
-        "message:<<COULD_NOT_INVOKE_CONSTRUCTOR %s[%d]>>", className, args.length)));
+      "message:<<COULD_NOT_INVOKE_CONSTRUCTOR %s[%d]>>", className, args.length)));
   }
 
   private Object createInstanceOfConstructor(String className, Object[] args) throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
@@ -135,13 +142,31 @@ public class StatementExecutor implements StatementExecutorInterface {
     if (constructor == null)
       throw new SlimError(String.format("message:<<NO_CONSTRUCTOR %s>>", className));
 
-    Object newInstance = constructor.newInstance(ConverterSupport.convertArgs(args, constructor
+    Object newInstance = "";
+
+    if (verifyOnly) {
+      try {
+        ObjectInstantiator instantiator = new StdInstantiatorStrategy().newInstantiatorOf(k);
+        newInstance = instantiator.newInstance();
+      } catch (NoClassDefFoundError ex) {
+        return handleMissingCstr(args, k, ex);
+      }
+    } else {
+      newInstance = constructor.newInstance(ConverterSupport.convertArgs(args, constructor
         .getParameterTypes()));
-    if (newInstance instanceof StatementExecutorConsumer) {
-      ((StatementExecutorConsumer) newInstance).setStatementExecutor(this);
+      if (newInstance instanceof StatementExecutorConsumer) {
+        ((StatementExecutorConsumer) newInstance).setStatementExecutor(this);
+      }
     }
     return newInstance;
-    
+  }
+
+  private Object handleMissingCstr(Object[] args, Class<?> k, Throwable ex) {
+    String argsStr = "";
+    for (Object arg : args) {
+      argsStr += ", " + arg;
+    }
+    throw new RuntimeException("can't instantiate class " + k.getName() + " with c'str(" + argsStr + ")", ex);
   }
 
   private Class<?> searchPathsForClass(String className) {
@@ -184,11 +209,12 @@ public class StatementExecutor implements StatementExecutorInterface {
   }
 
   private MethodExecutionResult getMethodExecutionResult(String instanceName, String methodName, Object... args)
-      throws Throwable {
+    throws Throwable {
     MethodExecutionResults results = new MethodExecutionResults();
     for (int i = 0; i < executorChain.size(); i++) {
-      MethodExecutionResult result = executorChain.get(i).execute(instanceName, methodName,
-          replaceSymbols(args));
+      MethodExecutor methodExecutor = executorChain.get(i);
+      Object[] args1 = replaceSymbols(args);
+      MethodExecutionResult result = methodExecutor.execute(instanceName, methodName, args1);
       if (result.hasResult()) {
         return result;
       }

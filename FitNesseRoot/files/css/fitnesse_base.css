@@ -694,6 +694,10 @@ table.dirListing {
   background-color: #AAFFAA;
 }
 
+.verified {
+  background-color: #AAAAFF;
+}
+
 .fail {
   background-color: #FFAAAA;
 }

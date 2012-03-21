@@ -104,6 +104,7 @@ public class FitNesseMain {
       componentFactory);
     context.htmlPageFactory = componentFactory
       .getHtmlPageFactory(new HtmlPageFactory());
+    context.verifyOnly = arguments.isVerifyOnly();
 
     extraOutput = componentFactory.loadPlugins(context.responderFactory,
       wikiPageFactory);
@@ -122,7 +123,7 @@ public class FitNesseMain {
 
   public static Arguments parseCommandLine(String[] args) {
     CommandLine commandLine = new CommandLine(
-      "[-p port][-d dir][-r root][-l logDir][-e days][-o][-i][-a userpass][-c command]");
+      "[-p port][-d dir][-r root][-l logDir][-e days][-o][-i][-a userpass][-c command][-y]");
     Arguments arguments = null;
     if (commandLine.parse(args)) {
       arguments = new Arguments();
@@ -142,6 +143,7 @@ public class FitNesseMain {
         arguments.setCommand(commandLine.getOptionArgument("c", "command"));
       arguments.setOmitUpdates(commandLine.hasOption("o"));
       arguments.setInstallOnly(commandLine.hasOption("i"));
+      arguments.setVerifyOnly(commandLine.hasOption("y"));
     }
     return arguments;
   }
@@ -166,7 +168,7 @@ public class FitNesseMain {
     return componentFactory.getAuthenticator(authenticator);
   }
 
-  private static void printUsage() {
+  static void printUsage() {
     System.err.println("Usage: java -jar fitnesse.jar [-pdrleoa]");
     System.err.println("\t-p <port number> {" + Arguments.DEFAULT_PORT + "}");
     System.err.println("\t-d <working directory> {" + Arguments.DEFAULT_PATH
@@ -181,6 +183,7 @@ public class FitNesseMain {
       .println("\t-a {user:pwd | user-file-name} enable authentication.");
     System.err.println("\t-i Install only, then quit.");
     System.err.println("\t-c <command> execute single command.");
+    System.err.println("\t-y verify syntax and structure of tests only.");
   }
 
   private static void printStartMessage(Arguments args, FitNesseContext context) {

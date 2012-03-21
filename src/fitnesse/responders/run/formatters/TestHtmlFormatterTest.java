@@ -2,6 +2,7 @@
 // Released under the terms of the CPL Common Public License version 1.0.
 package fitnesse.responders.run.formatters;
 
+import fitnesse.VelocityFactory;
 import fitnesse.responders.run.TestPage;
 import fitnesse.wiki.InMemoryPage;
 import fitnesse.wiki.WikiPage;
@@ -24,6 +25,7 @@ public class TestHtmlFormatterTest extends RegexTestCase {
     page = new TestPage(root.addChildPage("NewPage"));
     page.getData().setContent("page content here");
     context = new FitNesseContext();
+    VelocityFactory.makeVelocityFactory(context);
 
     formatter = new TestHtmlFormatter(context, page.getSourcePage(), new HtmlPageFactory()) {
       @Override
@@ -128,7 +130,41 @@ public class TestHtmlFormatterTest extends RegexTestCase {
     formatter.newTestStarted(page, timeMeasurement.start());
     formatter.testComplete(page, new TestSummary(1, 2, 3, 4), timeMeasurement.stop());
     formatter.allTestingComplete(totalTimeMeasurement.stop());
-    assertSubString("<strong>Assertions:</strong> 1 right, 2 wrong, 3 ignored, 4 exceptions (0.600 seconds)", pageBuffer.toString());
+    assertSubString("<strong>Assertions:</strong> 1 right, 2 wrong, 3 ignored, 4 exceptions", pageBuffer.toString());
+  }
+
+  public void testCssFormatterWithVerify(){
+    assertCssForTestSummary("only verified values give verified  ", "verified", new TestSummary(0, 0, 0, 0, 1));
+  }
+
+  public void testCssFormatter() {
+    assertCssForTestSummary("only pass values give pass  ", "pass", new TestSummary(1, 0, 0, 0));
+    assertCssForTestSummary("only pass values give pass  ", "pass", new TestSummary(1, 0, 1, 0));
+
+    assertCssForTestSummary("only pass values give pass  ", "error", new TestSummary(0, 0, 0, 0));
+    assertCssForTestSummary("only pass values give pass  ", "error", new TestSummary(1, 0, 0, 1));
+    assertCssForTestSummary("only pass values give pass  ", "error", new TestSummary(1, 0, 1, 1));
+    assertCssForTestSummary("any wrong values give fail  ", "error", new TestSummary(0, 0, 0, 1));
+    assertCssForTestSummary("no values should be an error", "error", new TestSummary(0, 0, 0, 0));
+
+    assertCssForTestSummary("any exceptions give error   ", "fail", new TestSummary(1, 1, 1, 1));
+    assertCssForTestSummary("any wrong values give fail  ", "fail", new TestSummary(1, 1, 1, 0));
+    assertCssForTestSummary("any wrong values give fail  ", "fail", new TestSummary(1, 1, 0, 1));
+    assertCssForTestSummary("any wrong values give fail  ", "fail", new TestSummary(1, 1, 0, 0));
+    assertCssForTestSummary("any wrong values give fail  ", "fail", new TestSummary(0, 1, 0, 0));
+  }
+
+  private void assertCssForTestSummary(String message, String cssTag, TestSummary summary) {
+    TestHtmlFormatter cssFormatter = createStubbedFormatter();
+    assertEquals(message, cssTag, cssFormatter.cssClassFor(summary));
+  }
+
+  private TestHtmlFormatter createStubbedFormatter() {
+    return new TestHtmlFormatter(null) {
+      @Override
+      protected void writeData(String output) {
+      }
+    };
   }
 
   private TimeMeasurement newConstantElapsedTimeMeasurement(final long theElapsedTime) {

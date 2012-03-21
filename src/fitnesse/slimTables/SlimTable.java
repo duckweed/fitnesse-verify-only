@@ -2,6 +2,7 @@
 // Released under the terms of the CPL Common Public License version 1.0.
 package fitnesse.slimTables;
 
+import fitnesse.FitNesseContext;
 import fitnesse.responders.run.TestSummary;
 import fitnesse.responders.run.slimResponder.SlimTestContext;
 import fitnesse.responders.run.slimResponder.SlimTestSystem;
@@ -256,6 +257,11 @@ public abstract class SlimTable {
 
   private String passUncounted(String value) {
     return table.pass(value);
+  }
+
+  private String verified(String value) {
+    testSummary.verified = testSummary.getVerified() + 1;
+    return table.verified(value);
   }
 
   protected String error(String value) {
@@ -610,7 +616,11 @@ public abstract class SlimTable {
 
     protected String createEvaluationMessage(String actual, String expected) {
       if ("OK".equalsIgnoreCase(actual))
-        return passUncounted(replaceSymbolsWithFullExpansion(expected));
+        if (FitNesseContext.getVerifyOnly()) {
+          return verified(expected);
+        } else {
+          return passUncounted(replaceSymbolsWithFullExpansion(expected));
+        }
       else
         return "!style_error(Unknown construction message:) " + actual;
     }
@@ -652,15 +662,19 @@ public abstract class SlimTable {
       else if (replacedExpected.length() == 0)
         evaluationMessage = ignore(actual);
       else {
-        String expressionMessage = new Comparator(this, replacedExpected, actual, expected).evaluate();
-        if (expressionMessage != null)
-          evaluationMessage = expressionMessage;
-        else if (actual.indexOf("Exception:") != -1) {
-          evaluationMessage = error(actual);
-        } else
-          evaluationMessage = failMessage(actual,
-            String.format("%s [%s]", expectationAdjective(), replaceSymbolsWithFullExpansion(expected))
-          );
+        if (actual.equals("verified:")) {
+          evaluationMessage = verified(expected);
+        } else {
+          String expressionMessage = new Comparator(this, replacedExpected, actual, expected).evaluate();
+          if (expressionMessage != null)
+            evaluationMessage = expressionMessage;
+          else if (actual.indexOf("Exception:") != -1) {
+            evaluationMessage = error(actual);
+          } else {
+            String msg = String.format("%s [%s]", expectationAdjective(), replaceSymbolsWithFullExpansion(expected));
+            evaluationMessage = failMessage(actual, msg);
+          }
+        }
       }
 
       return evaluationMessage;

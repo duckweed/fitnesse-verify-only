@@ -18,6 +18,7 @@ public class Arguments {
   private String userpass;
   private boolean installOnly;
   private String command = null;
+  private boolean verifyOnly = false;
 
   public String getRootPath() {
     return rootPath;
@@ -100,4 +101,14 @@ public class Arguments {
   public void setCommand(String command) {
     this.command = command;
   }
+
+  public void setVerifyOnly(boolean verifyOnly) {
+    this.verifyOnly = verifyOnly;
+  }
+
+  public boolean isVerifyOnly() {
+    return verifyOnly;
+  }
+
+
 }
