@@ -1,0 +1,13 @@
+!1 Verify Only
+
+When a test suite gets large and potentially slow, refactoring for code reuse or removal can become harder. 
+
+The tests become more expensive in tester time and the perceived risks can get greater.
+
+Often the cost comes from the SUT itself, when slow tests and/or asynchronous tests increase that run time.
+
+To speed this up, a verify only flag has been added to allow the tests to run right through without the overhead of the SUT. By ensuring that the interface is the same, the user can refactor the wiki and fixtures without having to run the entire suite. 
+
+The verify-only flag (-y) can be added to the command line and this will merely verify that the test has been wired correctly with respect to scenarios, scripts and fixture code. 
+
+

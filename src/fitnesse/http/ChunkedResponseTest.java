@@ -43,8 +43,8 @@ public class ChunkedResponseTest implements ResponseSender {
   public void setUp() throws Exception {
     buffer = new StringBuffer();
 
-    response = new ChunkedResponse("html");
-    response.readyToSend(this);
+    response = new ChunkedResponse("html", new MockChunkedDataProvider());
+    response.sendTo(this);
   }
 
   @After
@@ -54,7 +54,6 @@ public class ChunkedResponseTest implements ResponseSender {
 
   @Test
   public void testHeaders() throws Exception {
-    assertTrue(response.isReadyToSend());
     String text = buffer.toString();
     assertHasRegexp("Transfer-Encoding: chunked", text);
     assertTrue(text.startsWith("HTTP/1.1 200 OK\r\n"));
@@ -63,10 +62,8 @@ public class ChunkedResponseTest implements ResponseSender {
 
   @Test
   public void xmlHeaders() throws Exception {
-    response = new ChunkedResponse("xml");
-    response.readyToSend(this);
-    assertTrue(response.isReadyToSend());
-    assertTrue(response.isReadyToSend());
+    response = new ChunkedResponse("xml", new MockChunkedDataProvider());
+    response.sendTo(this);
     String text = buffer.toString();
     assertHasRegexp("Transfer-Encoding: chunked", text);
     assertTrue(text.startsWith("HTTP/1.1 200 OK\r\n"));
